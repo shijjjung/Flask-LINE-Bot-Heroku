@@ -72,6 +72,12 @@ def handle_message(event):
                     cursor.execute(sql,('1',))
                     result=cursor.fetchone()
                     print(result)
+            except Exception as ex:
+                line_bot_api.reply_message(  # 回復傳入的訊息文字
+                    event.reply_token,
+                    TextSendMessage(text=ex)
+                )
+                return
             finally:
                 connection.close()
             line_bot_api.reply_message(  # 回復傳入的訊息文字
