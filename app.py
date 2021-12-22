@@ -62,6 +62,10 @@ def handle_message(event):
         )
     elif isinstance(event, PostbackEvent):  # 如果有回傳值事件
         profile = line_bot_api.get_profile(event.source.user_id)
+        line_bot_api.reply_message(  # 回復傳入的訊息文字
+                event.reply_token,
+                TextSendMessage(text="所以呢? %s"%event.postback.data)
+        )
         if event.postback.data[0:1] == "A":  # 如果回傳值為「選擇地區」
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message’,charset=’utf8mb4')
             try:
