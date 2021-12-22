@@ -48,10 +48,14 @@ def handle_postback(event):
             with connection.cursor() as cursor:
                 sql= """INSERT INTO `Registration`
                 (`reg_id`, `reg_name`, `reg_name2`, `reg_part`, `reg_col1`, `reg_col2`) 
-                VALUES (1, N'ShihTingHuang', N'黃詩婷', %s, '2021/12/20')"""
+                VALUES (1, 'ShihTingHuang', '黃詩婷', %s, '2021/12/20')"""
+                line_bot_api.reply_message(  # 回復傳入的訊息文字
+                    event.reply_token,
+                    TextSendMessage(text=(sql,('1',)))
+                )
                 cursor.execute(sql,('1',))
                 result=cursor.fetchone()
-                print(result)
+                print(sql)
                 line_bot_api.reply_message(  # 回復傳入的訊息文字
                     event.reply_token,
                     TextSendMessage(text="%s已簽到成功"%(profile.display_name))
