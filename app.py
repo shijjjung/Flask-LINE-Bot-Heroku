@@ -42,6 +42,10 @@ def callback():
 @handler.add(PostbackEvent)
 def handle_postback(event):
     profile = line_bot_api.get_profile(event.source.user_id)
+    line_bot_api.reply_message(  # 回復傳入的訊息文字
+        event.reply_token,
+        TextSendMessage(text=event.postback.data == "A"and '1'or'0')
+    )
     if event.postback.data == "A":
         try:
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message’,charset=’utf8mb4')
@@ -63,7 +67,7 @@ def handle_postback(event):
         except Exception as ex:
             line_bot_api.reply_message(  # 回復傳入的訊息文字
                 event.reply_token,
-                TextSendMessage(text=ex)
+                TextSendMessage(text=str(ex))
             )
             return
         finally:
