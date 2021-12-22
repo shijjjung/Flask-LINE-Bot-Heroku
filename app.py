@@ -47,7 +47,7 @@ def handle_postback(event):
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
             with connection.cursor() as cursor:
                 sql= """INSERT INTO `Registration`
-                (`reg_id`, `reg_name`, `reg_name2`, `reg_part`, `reg_col1`, `reg_col2`) 
+                (`reg_id`, `reg_name`, `reg_name2`, `reg_part`, `reg_col1`) 
                 VALUES (1, 'ShihTingHuang', '黃詩婷', 1, '2021/12/20')"""
                 cursor.execute(sql)
                 result=cursor.fetchone()
