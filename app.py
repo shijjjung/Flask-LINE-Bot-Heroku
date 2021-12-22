@@ -50,11 +50,11 @@ def handle_postback(event):
                 (`reg_id`, `reg_name`, `reg_name2`, `reg_part`, `reg_col1`) 
                 VALUES (1, 'ShihTingHuang', '黃詩婷', 1, '2021/12/20')"""
                 cursor.execute(sql)
-                result=cursor.fetchone()
-                line_bot_api.reply_message(  # 回復傳入的訊息文字
-                    event.reply_token,
-                    TextSendMessage(text="%s已簽到成功"%(profile.display_name))
-                )
+            cursor.commit()
+            line_bot_api.reply_message(  # 回復傳入的訊息文字
+                event.reply_token,
+                TextSendMessage(text="%s已簽到成功"%(profile.display_name))
+            )
             connection.close()
         except Exception as ex:
             line_bot_api.reply_message(  # 回復傳入的訊息文字
