@@ -39,6 +39,36 @@ def callback():
         return "OK"
 
 
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    profile = line_bot_api.get_profile(event.source.user_id)
+    line_bot_api.reply_message(  # 回復傳入的訊息文字
+            event.reply_token,
+            TextSendMessage(text="所以呢? %s"%event.postback.data)
+    )
+    if event.postback.data[0:1] == "A":  # 如果回傳值為「選擇地區」
+        connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message’,charset=’utf8mb4')
+        try:
+            with connection.cursor() as cursor:
+                sql= """INSERT INTO `Registration`
+                (`reg_id`, `reg_name`, `reg_name2`, `reg_part`, `reg_col1`, `reg_col2`) 
+                VALUES (1, N'ShihTingHuang', N'黃詩婷', %s, '2021/12/20')"""
+                cursor.execute(sql,('1',))
+                result=cursor.fetchone()
+                print(result)
+        except Exception as ex:
+            line_bot_api.reply_message(  # 回復傳入的訊息文字
+                event.reply_token,
+                TextSendMessage(text=ex)
+            )
+            return
+        finally:
+            connection.close()
+        line_bot_api.reply_message(  # 回復傳入的訊息文字
+            event.reply_token,
+            TextSendMessage(text=profile.display_name)
+        )
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     get_message = event.message.text
@@ -60,34 +90,6 @@ def handle_message(event):
                 )
             )
         )
-    elif isinstance(event, PostbackEvent):  # 如果有回傳值事件
-        profile = line_bot_api.get_profile(event.source.user_id)
-        line_bot_api.reply_message(  # 回復傳入的訊息文字
-                event.reply_token,
-                TextSendMessage(text="所以呢? %s"%event.postback.data)
-        )
-        if event.postback.data[0:1] == "A":  # 如果回傳值為「選擇地區」
-            connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message’,charset=’utf8mb4')
-            try:
-                with connection.cursor() as cursor:
-                    sql= """INSERT INTO `Registration`
-                    (`reg_id`, `reg_name`, `reg_name2`, `reg_part`, `reg_col1`, `reg_col2`) 
-                    VALUES (1, N'ShihTingHuang', N'黃詩婷', %s, '2021/12/20')"""
-                    cursor.execute(sql,('1',))
-                    result=cursor.fetchone()
-                    print(result)
-            except Exception as ex:
-                line_bot_api.reply_message(  # 回復傳入的訊息文字
-                    event.reply_token,
-                    TextSendMessage(text=ex)
-                )
-                return
-            finally:
-                connection.close()
-            line_bot_api.reply_message(  # 回復傳入的訊息文字
-                event.reply_token,
-                TextSendMessage(text=profile.display_name)
-            )
     elif get_message in ['不出席','不會到']:
         line_bot_api.reply_message(
             event.reply_token,
