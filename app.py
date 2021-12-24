@@ -182,21 +182,27 @@ def handle_message(event):
     if "加入羽毛球隊" in get_message:
         try:
             # sp_sql = """select CONCAT('{adj}揚秦羽球隊員', MAX(m_id)+1) INTO @TMP_NAME from Member LIMIT 1;
-            sp_sql="""SELECT SP_UPDATEMEMBER('{u_id}', '揚秦羽球隊員');""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
+            sp_sql="""SELECT SP_UPDATEMEMBER('{u_id}', '{adj}揚秦羽球隊員');""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
             with connection.cursor() as cursor:
                 cursor.execute(sp_sql)
                 connection.commit()
-                records = cursor.fetchall()
-                for row in records:
-                    name=row[0]
-                    break
+                row = cursor.fetchone()
+                name=row[0]
+                cursor.execute(sp_sql)
                 connection.commit()
+                row = cursor.fetchone()
             connection.close()
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='{name}加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦'.format(name=name))
-            )
+            if name == "0":
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='{name}加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦'.format(name=row[0]))
+                )
+            elif name != "0":
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='您已經加入球隊。\n若要更改您的暱稱輸入 改名 揚超秦')
+                )
         except Exception as ex:
             line_bot_api.reply_message(
                 event.reply_token,
