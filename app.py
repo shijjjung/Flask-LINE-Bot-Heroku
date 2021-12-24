@@ -65,7 +65,7 @@ def echoMembersJoined(connection, token, reg_col1):
         cursor.execute(select_query)
         records = cursor.fetchall()
         i = 1
-        txt = "🏸🏸各位隊員家人們🏸🏸～以下為目前確認出席{date}團練者名單：".format(date=reg_col1)
+        txt = "🏸🏸各位隊員家人們🏸🏸～\n以下為【{date} 出席名單】，請於協助回覆，以利掌握人數，謝謝。\n：".format(date=reg_col1)
         for row in records:
             txt = txt + "\n{i}. {name}".format(i=i, name=row[0])
             i = i + 1
