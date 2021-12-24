@@ -129,11 +129,11 @@ def handle_message(event):
         return
     if "改暱稱" in get_message:
         newname = ''.join(get_message.split("改暱稱"))
-        new_string = re.sub(r"[^a-zA-Z0-9]","",newname)
+        new_string = re.sub(r"(?:[\*\.\-\%\#])+",'',newname)
         doChangeName(event.source.user_id, new_string, event.reply_token)
     if "改名" in get_message:
         newname = ''.join(get_message.split("改名"))
-        new_string = re.sub(r"[^a-zA-Z0-9]","",newname)
+        new_string = re.sub(r"(?:[\*\.\-\%\#])+",'',newname)
         doChangeName(event.source.user_id, new_string, event.reply_token)
     # elif get_message in ['不出席','不會到']:
     #     line_bot_api.reply_message(
