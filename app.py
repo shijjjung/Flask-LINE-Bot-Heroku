@@ -2,7 +2,7 @@ import os
 import time
 from flask import Flask, abort, request
 import pymysql
-
+import re
 # https://github.com/line/line-bot-sdk-python
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError,LineBotApiError
@@ -101,6 +101,19 @@ def doRegister(profile, event, postdata):
             event.reply_token,
             TextSendMessage(text=str(ex))
         )
+def doChangeName(u_id, new_name_string, token):
+    try:
+        sql = """UPDATE Member set m_nickname='{name}' where m_uid='{u_id}';""".format(name=new_name_string, u_id = u_id)
+        connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
+            connection.commit()
+        connection.close()
+    except Exception as ex:
+        line_bot_api.reply_message(  # 回復傳入的訊息文字
+            token,
+            TextSendMessage(text=str(ex))
+        )
 @handler.add(PostbackEvent)
 def handle_postback(event):
     profile = line_bot_api.get_profile(event.source.user_id)
@@ -114,6 +127,14 @@ def handle_message(event):
         date = get_message.split(' ')[0]
         echoJoinButtons(date, event.reply_token)
         return
+    if "改暱稱" in get_message:
+        newname = ''.join(get_message.split("改暱稱"))
+        new_string = re.sub(r"[^a-zA-Z0-9]","",newname)
+        doChangeName(event.source.user_id, new_string, event.reply_token)
+    if "改名" in get_message:
+        newname = ''.join(get_message.split("改名"))
+        new_string = re.sub(r"[^a-zA-Z0-9]","",newname)
+        doChangeName(event.source.user_id, new_string, event.reply_token)
     # elif get_message in ['不出席','不會到']:
     #     line_bot_api.reply_message(
     #         event.reply_token,
