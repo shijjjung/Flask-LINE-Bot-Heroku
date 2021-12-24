@@ -75,6 +75,38 @@ def echoMembersJoined(connection, token, reg_col1):
             token,
             TextSendMessage(text=txt)
         )
+def doRegisterWithNoAccess(event, postdata):
+    try:
+        sp_sql = """SELECT SP_UPDATEMEMBER('{u_id}','{n}');""".format(u_id = event.source.user_id, n='')
+        date =  postdata.split('&')[-1]
+        connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
+        with connection.cursor() as cursor:
+            cursor.execute(sp_sql)
+            connection.commit()
+            records = cursor.fetchall()
+            for row in records:
+                name=row[0]
+                break
+            sql= """
+            INSERT INTO `Registration`(`reg_name`,`reg_name2`,`reg_part`,`reg_col1`,`reg_col2`) 
+            SELECT '{name}', (select `m_id`from `Member` where `m_uid`='{u_id}' LIMIT 1), 1, '{datestr}','{memo}' from `Member` WHERE not EXISTS 
+            (SELECT 1 FROM `Registration` WHERE `reg_col1` = '{datestr}' and `reg_name2` = (select `m_id` from `Member` WHERE 
+            `m_uid` = '{u_id}')) AND `m_uid` = '{u_id}' LIMIT 1;""".format(
+                name=name, 
+                datestr=date,
+                memo=postdata,
+                u_id = event.source.user_id
+            )
+            cursor.execute(sql)
+            connection.commit()
+        echoMembersJoined(connection=connection, token=event.reply_token, reg_col1=date)
+        echoJoinButtons(date, event.reply_token )
+        connection.close()
+    except Exception as ex:
+        line_bot_api.reply_message(  # 回復傳入的訊息文字
+            event.reply_token,
+            TextSendMessage(text=str(ex))
+        )
 # 回應參加
 def doRegister(profile, event, postdata):
     try:
@@ -121,10 +153,7 @@ def handle_postback(event):
     try:
         profile = line_bot_api.get_profile(event.source.user_id)
     except Exception as ex:
-        line_bot_api.reply_message(  # 回復傳入的訊息文字
-            event.reply_token,
-            TextSendMessage(text="噢不!您尚未加入羽球小幫手好友，無法幫您新增資料")
-        )
+        doRegisterWithNoAccess(event, event.postback.data)
         return
     if event.postback.data[0:1] == "A" or event.postback.data[0:1] == "B":
         doRegister(profile, event, event.postback.data)
@@ -157,7 +186,11 @@ def handle_message(event):
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
             with connection.cursor() as cursor:
                 cursor.execute(sp_sql)
-                name = cursor.fetchone()[0]
+                connection.commit()
+                records = cursor.fetchall()
+                for row in records:
+                    name=row[0]
+                    break
                 connection.commit()
             connection.close()
             line_bot_api.reply_message(
