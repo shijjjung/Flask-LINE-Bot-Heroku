@@ -137,10 +137,7 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=event.source.user_id)
         )
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=line_bot_api.get_profile(event.source.user_id))
-        )
+        
     if get_message.split(' ')[-1]=="團練" and event.source.user_id == 'Uf3ea47edfa9d6c08b8c14786d2fd043a':
         date = get_message.split(' ')[0]
         echoJoinButtons(date, event.reply_token)
@@ -168,7 +165,8 @@ def handle_message(event):
             )
         except Exception as ex:
             try:
-                sp_sql = """SELECT SP_UPDATEMEMBER('{u_id}',(select CONCAT('{adj}揚秦羽球隊員', Convert(MAX(m_id)+1,CHAR)) from Member));""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
+                sp_sql = """select CONCAT('{adj}揚秦羽球隊員', MAX(m_id)+1) INTO @TMP_NAME from Member LIMIT 1;
+                SELECT SP_UPDATEMEMBER('{u_id}', @TMP_NAME)""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
                 connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
                 with connection.cursor() as cursor:
                     cursor.execute(sp_sql)
