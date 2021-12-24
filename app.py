@@ -43,7 +43,7 @@ def handle_postback(event):
     if event.postback.data[0:1] == "A" or event.postback.data[0:1] == "B":
         
         try:
-            sp_sql = """CALL SP_UPDATEMEMBER('{u_id}','{n}');""".format(event.source.user_id, profile.display_name)
+            sp_sql = """CALL SP_UPDATEMEMBER('{u_id}','{n}');""".format(u_id = event.source.user_id, n=profile.display_name)
             date = event.postback.data.split('&')[-1]
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
             with connection.cursor() as cursor:
