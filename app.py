@@ -1,5 +1,6 @@
 import os
 import time
+import random
 from flask import Flask, abort, request
 import pymysql
 import re
@@ -17,6 +18,7 @@ from linebot.models import (
     PostbackEvent
 )
 app = Flask(__name__)
+adjlist = ['熱血的','可愛的','活力的','冷靜的','新手的']
 
 line_bot_api = LineBotApi(os.environ.get("CHANNEL_ACCESS_TOKEN"))
 handler = WebhookHandler(os.environ.get("CHANNEL_SECRET"))
@@ -121,7 +123,7 @@ def handle_postback(event):
     except Exception as ex:
         line_bot_api.reply_message(  # 回復傳入的訊息文字
             event.reply_token,
-            TextSendMessage(text="未加入羽球小幫手好友")
+            TextSendMessage(text="噢不!您尚未加入羽球小幫手好友，無法幫您新增資料")
         )
         return
     if event.postback.data[0:1] == "A" or event.postback.data[0:1] == "B":
@@ -150,11 +152,29 @@ def handle_message(event):
             with connection.cursor() as cursor:
                 cursor.execute(sp_sql)
                 connection.commit()
+            connection.close()
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='加入成功，歡迎{name}！\n若要更改您的暱稱輸入 改名 揚超秦'.format(name=profile.display_name))
+            )
         except Exception as ex:
-            line_bot_api.reply_message(  # 回復傳入的訊息文字
-            event.reply_token,
-            TextSendMessage(text=str(ex))
-        )
+            try:
+                sp_sql = """SELECT SP_UPDATEMEMBER('{u_id}',(select CONCAT('{adj}揚秦羽球隊員', Convert(MAX(m_id)+1,CHAR)) from Member));""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
+                connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
+                with connection.cursor() as cursor:
+                    cursor.execute(sp_sql)
+                    connection.commit()
+                connection.close()
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦')
+                )
+            except Exception as ex:
+                 line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=ex)
+                )
+            
     # elif get_message in ['不出席','不會到']:
     #     line_bot_api.reply_message(
     #         event.reply_token,
