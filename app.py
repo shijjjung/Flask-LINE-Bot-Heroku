@@ -65,9 +65,9 @@ def echoMembersJoined(connection, token, reg_col1):
         cursor.execute(select_query)
         records = cursor.fetchall()
         i = 1
-        txt = ""
+        txt = "🏸🏸各位隊員家人們🏸🏸～以下為目前確認出席{date}團練者名單：".format(date=reg_col1)
         for row in records:
-            txt = txt + "{i}. {name}\n".format(i=i, name=row[0])
+            txt = txt + "\n{i}. {name}".format(i=i, name=row[0])
             i = i + 1
         line_bot_api.reply_message(  # 回復傳入的訊息文字
             token,
