@@ -152,36 +152,23 @@ def handle_message(event):
         doChangeName(event.source.user_id, new_string, event.reply_token)
     if "加入羽毛球隊" in get_message:
         try:
-            profile = line_bot_api.get_profile(event.source.user_id)
-            sp_sql = """SELECT SP_UPDATEMEMBER('{u_id}','{n}');""".format(u_id = event.source.user_id, n=profile.display_name)
+            sp_sql = """select CONCAT('{adj}揚秦羽球隊員', MAX(m_id)+1) INTO @TMP_NAME from Member LIMIT 1;
+            SELECT SP_UPDATEMEMBER('{u_id}', @TMP_NAME)""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
             with connection.cursor() as cursor:
                 cursor.execute(sp_sql)
+                name = cursor.fetchone()[0]
                 connection.commit()
             connection.close()
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='加入成功，歡迎{name}！\n若要更改您的暱稱輸入 改名 揚超秦'.format(name=profile.display_name))
+                TextSendMessage(text='{name}加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦'.format(name=name))
             )
         except Exception as ex:
-            try:
-                sp_sql = """select CONCAT('{adj}揚秦羽球隊員', MAX(m_id)+1) INTO @TMP_NAME from Member LIMIT 1;
-                SELECT SP_UPDATEMEMBER('{u_id}', @TMP_NAME)""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
-                connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
-                with connection.cursor() as cursor:
-                    cursor.execute(sp_sql)
-                    name = cursor.fetchone()[0]
-                    connection.commit()
-                connection.close()
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text='{name}加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦'.format(name=name))
-                )
-            except Exception as ex:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextSendMessage(text=ex)
-                )
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=ex)
+            )
     
             
     # elif get_message in ['不出席','不會到']:
