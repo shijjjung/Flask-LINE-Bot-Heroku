@@ -116,7 +116,14 @@ def doChangeName(u_id, new_name_string, token):
         )
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    profile = line_bot_api.get_profile(event.source.user_id)
+    try:
+        profile = line_bot_api.get_profile(event.source.user_id)
+    except Exception as ex:
+        line_bot_api.reply_message(  # 回復傳入的訊息文字
+            event.reply_token,
+            TextSendMessage(text="未加入羽球小幫手好友")
+        )
+        return
     if event.postback.data[0:1] == "A" or event.postback.data[0:1] == "B":
         doRegister(profile, event, event.postback.data)
         
