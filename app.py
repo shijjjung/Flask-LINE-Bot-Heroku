@@ -134,11 +134,11 @@ def handle_message(event):
         date = get_message.split(' ')[0]
         echoJoinButtons(date, event.reply_token)
         return
-    if "改暱稱" in get_message:
+    if get_message.strip()[0:2]=="改暱稱":
         newname = ''.join(get_message.split("改暱稱"))
         new_string = re.sub(r"(?:[\*\.\-\%\#])+",'',newname)
         doChangeName(event.source.user_id, new_string, event.reply_token)
-    if "改名" in get_message:
+    if get_message.strip()[0:2]=="改名":
         newname = ''.join(get_message.split("改名"))
         new_string = re.sub(r"(?:[\*\.\-\%\#])+",'',newname)
         doChangeName(event.source.user_id, new_string, event.reply_token)
