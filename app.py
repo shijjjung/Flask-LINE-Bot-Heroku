@@ -132,6 +132,15 @@ def handle_postback(event):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     get_message = event.message.text
+    if '查看資料' == get_message:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=event.source.user_id)
+        )
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=line_bot_api.get_profile(event.source.user_id))
+        )
     if get_message.split(' ')[-1]=="團練" and event.source.user_id == 'Uf3ea47edfa9d6c08b8c14786d2fd043a':
         date = get_message.split(' ')[0]
         echoJoinButtons(date, event.reply_token)
@@ -174,11 +183,7 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text=ex)
                 )
-    if '查看資料' == get_message:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=event.source)
-        )
+    
             
     # elif get_message in ['不出席','不會到']:
     #     line_bot_api.reply_message(
