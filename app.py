@@ -61,7 +61,7 @@ def echoJoinButtons(data, reply_token):
     )
 def echoMembersJoined(connection, token, reg_col1):
     with connection.cursor() as cursor:
-        select_query = """select `reg_name2` from Registration where reg_part = 1 and `reg_col1` = '{datestr}'""".format(datestr=reg_col1)
+        select_query = """select m_nickname from Registration inner join Member on Registration.reg_name2 = Member.m_id where reg_part = 1 and `reg_col1` = '{datestr}'""".format(datestr=reg_col1)
         cursor.execute(select_query)
         records = cursor.fetchall()
         i = 1
