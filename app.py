@@ -170,10 +170,15 @@ def handle_message(event):
                     TextSendMessage(text='加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦')
                 )
             except Exception as ex:
-                 line_bot_api.reply_message(
+                line_bot_api.reply_message(
                     event.reply_token,
                     TextSendMessage(text=ex)
                 )
+    if '查看資料':
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=event.source)
+        )
             
     # elif get_message in ['不出席','不會到']:
     #     line_bot_api.reply_message(
