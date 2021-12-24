@@ -135,6 +135,19 @@ def handle_message(event):
         newname = ''.join(get_message.split("改名"))
         new_string = re.sub(r"(?:[\*\.\-\%\#])+",'',newname)
         doChangeName(event.source.user_id, new_string, event.reply_token)
+    if "加入羽毛球隊" in get_message:
+        try:
+            profile = line_bot_api.get_profile(event.source.user_id)
+            sp_sql = """SELECT SP_UPDATEMEMBER('{u_id}','{n}');""".format(u_id = event.source.user_id, n=profile.display_name)
+            connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
+            with connection.cursor() as cursor:
+                cursor.execute(sp_sql)
+                connection.commit()
+        except Exception as ex:
+            line_bot_api.reply_message(  # 回復傳入的訊息文字
+            event.reply_token,
+            TextSendMessage(text=str(ex))
+        )
     # elif get_message in ['不出席','不會到']:
     #     line_bot_api.reply_message(
     #         event.reply_token,
