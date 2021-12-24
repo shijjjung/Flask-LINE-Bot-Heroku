@@ -170,11 +170,12 @@ def handle_message(event):
                 connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
                 with connection.cursor() as cursor:
                     cursor.execute(sp_sql)
+                    name = cursor.fetchone()[0]
                     connection.commit()
                 connection.close()
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text='加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦')
+                    TextSendMessage(text='{name}加入成功，但您沒有加入小幫手好友，\n若要更改您的暱稱輸入 改名 揚超秦'.format(name=name))
                 )
             except Exception as ex:
                 line_bot_api.reply_message(
