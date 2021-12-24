@@ -174,7 +174,7 @@ def handle_message(event):
                     event.reply_token,
                     TextSendMessage(text=ex)
                 )
-    if '查看資料':
+    if '查看資料' == get_message:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=event.source)
