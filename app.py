@@ -152,8 +152,8 @@ def handle_message(event):
         doChangeName(event.source.user_id, new_string, event.reply_token)
     if "加入羽毛球隊" in get_message:
         try:
-            sp_sql = """select CONCAT('{adj}揚秦羽球隊員', MAX(m_id)+1) INTO @TMP_NAME from Member LIMIT 1;
-            SELECT SP_UPDATEMEMBER('{u_id}', @TMP_NAME)""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
+            # sp_sql = """select CONCAT('{adj}揚秦羽球隊員', MAX(m_id)+1) INTO @TMP_NAME from Member LIMIT 1;
+            sp_sql="""SELECT SP_UPDATEMEMBER('{u_id}', '揚秦羽球隊員');""".format(adj=random.choice(adjlist), u_id = event.source.user_id)
             connection=pymysql.connect(host=os.environ.get("MYSQL_HOST"),user=os.environ.get("USER"),password=os.environ.get("PW"),db='message',charset='utf8mb4')
             with connection.cursor() as cursor:
                 cursor.execute(sp_sql)
@@ -169,7 +169,11 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text=ex)
             )
-    
+    if "給我錢"==get_message:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="不要")
+        )
             
     # elif get_message in ['不出席','不會到']:
     #     line_bot_api.reply_message(
