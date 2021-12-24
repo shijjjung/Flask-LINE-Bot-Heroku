@@ -56,7 +56,7 @@ def handle_postback(event):
                 cursor.execute(sql)
                 connection.commit()
             with connection.cursor() as cursor:
-                select_query = """select `reg_name2` from Registration where reg_part = 1 and `reg_col1` = '{datestr}'.format(datestr=date)"""
+                select_query = """select `reg_name2` from Registration where reg_part = 1 and `reg_col1` = '{datestr}'""".format(datestr=date)
                 cursor.execute(select_query)
                 records = cursor.fetchall()
                 i = 1
